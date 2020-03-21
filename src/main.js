@@ -67,16 +67,7 @@ axios.interceptors.response.use(
 
     const originalRequest = config;
 
-    if (data.message === "Missing token") {
-      router.push({ name: "login" });
-      return Promise.reject(false);
-    }
-
-    if (originalRequest.url.includes("login_check")) {
-      return Promise.reject(err);
-    }
-
-    if (status === 401 && data.message === "Expired token") {
+    if (status === 401) {
       if (!isRefreshing) {
         isRefreshing = true;
         store
@@ -92,15 +83,6 @@ axios.interceptors.response.use(
           });
       }
 
-      const requestSubscribers = new Promise(resolve => {
-        subscribeTokenRefresh(() => {
-          resolve(axios(originalRequest));
-        });
-      });
-
-      onRefreshed();
-
-      return requestSubscribers;
     }
   }
 );
